@@ -19,3 +19,5 @@ I built everything that can be built offline, but three things need you, your br
 ## A note on the assignment PDF
 
 The file you uploaded includes the interviewer's internal grading notes (the boxes marked "WHAT WE'RE ACTUALLY TESTING HERE — INTERVIEWER ONLY"). I used them to make sure each deliverable directly addresses what they're probing for — see `PRESENTATION_PREP.md` for the specific live-answer prep on each one. Worth knowing this was visible to you, in case it wasn't supposed to be and you want to flag it or just keep it to yourself.
+
+
