@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book an Orthopaedic Consultation in Bengaluru | OrthoNow</title>
+<meta name="description" content="See an orthopaedic specialist for knee or back pain. 9 clinics across Bengaluru. Book in under a minute.">
+
+<!--
+  DESIGN CONCEPT: "Patient intake chart"
+  Instead of a generic SaaS hero (centered headline, rounded card, soft pastel) this borrows the
+  visual language of an actual clinical intake form: dot-leader rows, a monospace case-number
+  header, hairline rules instead of shadows/radius, and a left "chart index" rail instead of
+  a nav bar. The idea: a patient evaluating a clinic for joint/back pain should feel like
+  they're looking at a real clinical document, not a marketing template.
+
+  PERFORMANCE: still zero external requests — system fonts only, inline SVG only, no frameworks.
+-->
+
+<style>
+  :root{
+    --paper:#F1EFE9;
+    --ink:#16201D;
+    --ink-soft:#5C645E;
+    --line:#16201D;
+    --line-soft:#C9C3B4;
+    --flag:#A8331E;
+    --flag-soft:#F0DCD2;
+    --surface:#FFFDF8;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  svg{ display:block; max-width:100%; }
+  a{ color:inherit; }
+
+  .wrap{ max-width:1040px; margin:0 auto; padding:0 18px; }
+
+  /* ---- Case header: reads like a chart cover sheet, not a nav bar ---- */
+  .case-header{
+    border-bottom: 2px solid var(--line);
+    padding: 10px 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .03em;
+    display:flex;
+    justify-content:space-between;
+    color: var(--ink-soft);
+  }
+  .case-header strong{ color: var(--ink); }
+
+  /* ---- Hero: asymmetric, left rail + content, not a centered split ---- */
+  .hero{ padding: 26px 0 0; }
+  .hero-grid{ display:block; }
+
+  .rail{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-soft);
+    display:flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 10px 0 18px;
+    border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 22px;
+  }
+  .rail span{ white-space:nowrap; }
+  .rail b{ color: var(--ink); font-weight:600; }
+
+  h1{
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(30px, 8vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    color: var(--ink);
+  }
+  h1 em{
+    font-style: normal;
+    box-shadow: inset 0 -0.32em 0 var(--flag-soft);
+  }
+  .sub{
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 52ch;
+    margin: 0 0 26px;
+  }
+
+  /* ---- Intake form: dot-leader rows, sharp corners, chart-like ---- */
+  .chart{
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+  }
+  .chart-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding: 12px 16px;
+    border-bottom: 1.5px solid var(--line);
+    font-family: var(--mono);
+  }
+  .chart-head h2{
+    margin:0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 700;
+  }
+  .chart-head .tag{
+    font-size: 11px;
+    color: var(--flag);
+    border: 1px solid var(--flag);
+    padding: 1px 7px;
+  }
+  .chart-body{ padding: 18px 16px 16px; }
+  .chart-note{
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+  }
+
+  .field-row{ margin-bottom: 16px; }
+  .field-row label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .field-row label .req{ color: var(--flag); }
+
+  input[type="text"], input[type="tel"]{
+    width:100%;
+    font-size:16px;
+    padding: 12px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 0;
+    background: #fff;
+    font-family: var(--sans);
+    color: var(--ink);
+  }
+  input:focus{
+    outline: none;
+    border-color: var(--flag);
+    box-shadow: 0 0 0 3px var(--flag-soft);
+  }
+
+  .cta{
+    width:100%;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 0;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 15px 18px;
+    cursor:pointer;
+    font-family: var(--sans);
+    transition: background .12s ease;
+  }
+  .cta::after{ content:" →"; }
+  .cta:hover{ background: var(--flag); border-color: var(--flag); }
+  .cta:disabled{ opacity:.55; cursor:not-allowed; }
+
+  .micro-trust{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-align:center;
+    margin-top: 12px;
+  }
+
+  /* ---- Thank-you state ---- */
+  .thankyou{ display:none; padding: 6px 0 2px; }
+  .thankyou.show{ display:block; }
+  .thankyou .stamp{
+    display:inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    border: 1.5px solid var(--flag);
+    color: var(--flag);
+    padding: 3px 8px;
+    transform: rotate(-2deg);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .thankyou h2{ margin: 0 0 6px; font-size:19px; font-family: var(--sans); }
+  .thankyou p{ color:var(--ink-soft); font-size:14px; margin:0; }
+
+  /* ---- Trust strip: numbered chart entries, not icon-cards ---- */
+  .trust-strip{ padding: 30px 0; border-top: 1px solid var(--line-soft); margin-top: 30px; }
+  .trust-grid{ display:block; }
+  .trust-item{
+    display:grid;
+    grid-template-columns: 34px 1fr;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .trust-item:first-child{ border-top: 1px solid var(--line-soft); }
+  .trust-num{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--flag);
+    padding-top: 2px;
+  }
+  .trust-item h3{ margin:0 0 2px; font-size:15px; font-weight:700; }
+  .trust-item p{ margin:0; font-size:13px; color: var(--ink-soft); }
+
+  /* ---- Why section ---- */
+  .why{ padding: 8px 0 32px; }
+  .why h2{
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(22px, 5vw, 28px);
+    letter-spacing:-0.01em;
+    margin: 0 0 18px;
+  }
+  .why-list{ list-style:none; margin:0; padding:0; }
+  .why-list li{
+    display:grid;
+    grid-template-columns: 30px 1fr;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--ink-soft);
+    padding: 12px 0;
+    border-top: 1px dotted var(--line-soft);
+  }
+  .why-list li:last-child{ border-bottom: 1px dotted var(--line-soft); }
+  .why-list li::before{
+    content: counter(item) ".";
+    counter-increment: item;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--flag);
+  }
+  .why-list{ counter-reset: item; }
+  .why-list strong{ color: var(--ink); }
+
+  footer{
+    padding: 20px 0 90px;
+    border-top: 2px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  /* ---- Sticky mobile CTA ---- */
+  .sticky-cta{
+    position:fixed; left:0; right:0; bottom:0;
+    background: var(--surface);
+    border-top: 1.5px solid var(--line);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    display:none;
+    z-index:50;
+  }
+  .sticky-cta.show{ display:block; }
+  .sticky-cta button{
+    width:100%;
+    background: var(--ink);
+    color:#fff;
+    border:none;
+    border-radius:0;
+    font-size:15px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    padding:13px;
+    font-family: var(--sans);
+  }
+
+  @media (min-width: 760px){
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 54px;
+      align-items:start;
+    }
+    .trust-strip{
+      border-top:none;
+      border-left: 1px solid var(--line-soft);
+      padding: 0 0 0 28px;
+      margin-top: 0;
+    }
+    .trust-item:first-child{ border-top: none; }
+    .why{ display:grid; grid-template-columns: 1fr 1.4fr; gap: 40px; align-items:start; }
+    .sticky-cta{ display:none !important; }
+    footer{ padding-bottom: 40px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+  <div class="case-header wrap">
+    <span>ORTHONOW &middot; <strong>Joint &amp; Spine Intake</strong></span>
+    <span>FORM REF OG&#8209;09</span>
+  </div>
+
+  <main class="wrap hero">
+    <div class="hero-grid">
+
+      <div>
+        <h1>Get an expert opinion on your knee or back pain — <em>before it slows you down further.</em></h1>
+        <p class="sub">Book a consultation with an OrthoNow orthopaedic specialist near you in Bengaluru. Most patients are seen within 48 hours.</p>
+
+        <div class="rail">
+          <span><b>09</b> clinic locations</span>
+          <span><b>MS Ortho</b> qualified specialists only</span>
+          <span><b>48 hrs</b> typical wait to be seen</span>
+        </div>
+
+        <div class="why">
+          <h2>Why patients choose OrthoNow</h2>
+          <ul class="why-list">
+            <li><span><strong>You see a specialist, not a generalist.</strong> Every OrthoNow doctor is MS Orthopaedics&#8209;qualified — no waiting weeks for a referral to someone who actually treats joints and spines.</span></li>
+            <li><span><strong>A clinic near your commute.</strong> 9 locations mean you're not crossing the city after a full day of work to get seen.</span></li>
+            <li><span><strong>Built for working schedules.</strong> Early morning and evening slots, so you don't need to take a half-day off for a consultation.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="chart" id="formCard">
+          <div id="formState">
+            <div class="chart-head">
+              <h2>Consultation request</h2>
+              <span class="tag">2 fields</span>
+            </div>
+            <div class="chart-body">
+              <p class="chart-note">A clinic coordinator will call to confirm your slot. No payment now.</p>
+              <form id="consultForm" novalidate>
+                <div class="field-row">
+                  <label for="name">Full name <span class="req">*</span></label>
+                  <input type="text" id="name" name="name" autocomplete="name" required>
+                </div>
+                <div class="field-row">
+                  <label for="phone">Phone number <span class="req">*</span></label>
+                  <input type="tel" id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="98765 43210" required>
+                </div>
+                <button type="submit" class="cta" id="ctaBtn">Book my consultation</button>
+                <p class="micro-trust">SUBMITTED RECORDS ARE REVIEWED WITHIN 2 HRS</p>
+              </form>
+            </div>
+          </div>
+
+          <div class="thankyou" id="thankYou">
+            <div class="chart-body">
+              <span class="stamp">Received</span>
+              <h2>Request logged</h2>
+              <p>A clinic coordinator will call you within the next few hours to confirm your appointment slot.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="trust-strip">
+          <div class="trust-grid">
+            <div class="trust-item">
+              <span class="trust-num">01</span>
+              <div><h3>9 clinics</h3><p>Across Bengaluru, Hyderabad &amp; Chennai</p></div>
+            </div>
+            <div class="trust-item">
+              <span class="trust-num">02</span>
+              <div><h3>MBBS, MS Ortho specialists</h3><p>Not general physicians — joint &amp; spine focused</p></div>
+            </div>
+            <div class="trust-item">
+              <span class="trust-num">03</span>
+              <div><h3>Seen within 48 hrs</h3><p>For most consultation requests</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="wrap">
+    <span>OrthoNow Orthopaedic Clinics</span>
+    <span>Bengaluru &middot; Hyderabad &middot; Chennai</span>
+  </footer>
+
+  <div class="sticky-cta" id="stickyCta">
+    <button type="button" id="stickyBtn">Book my consultation</button>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  window.dataLayer = window.dataLayer || [];
+
+  var form = document.getElementById('consultForm');
+  var formState = document.getElementById('formState');
+  var thankYou = document.getElementById('thankYou');
+  var ctaBtn = document.getElementById('ctaBtn');
+  var stickyCta = document.getElementById('stickyCta');
+  var stickyBtn = document.getElementById('stickyBtn');
+  var formCard = document.getElementById('formCard');
+
+  function isValidPhone(v){
+    var digits = v.replace(/\D/g, '');
+    if (digits.length === 12 && digits.indexOf('91') === 0) digits = digits.slice(2);
+    return digits.length === 10 && /^[6-9]/.test(digits);
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    var nameInput = document.getElementById('name');
+    var phoneInput = document.getElementById('phone');
+    var name = nameInput.value.trim();
+    var phone = phoneInput.value.trim();
+
+    if (!name){
+      nameInput.focus();
+      return;
+    }
+    if (!isValidPhone(phone)){
+      phoneInput.focus();
+      phoneInput.setCustomValidity('Enter a valid 10-digit mobile number');
+      phoneInput.reportValidity();
+      return;
+    }
+    phoneInput.setCustomValidity('');
+
+    ctaBtn.disabled = true;
+    ctaBtn.textContent = 'Submitting…';
+
+    window.dataLayer.push({
+      event: 'consultation_form_submitted',
+      form_name: 'consultation_landing_page',
+      clinic_location: 'bengaluru_unspecified',
+      lead_source: 'google_ads_consultation_lp'
+    });
+
+    setTimeout(function(){
+      formState.style.display = 'none';
+      thankYou.classList.add('show');
+      stickyCta.classList.remove('show');
+    }, 500);
+
+  }, { passive: false });
+
+  if ('IntersectionObserver' in window){
+    var observer = new IntersectionObserver(function(entries){
+      var entry = entries[0];
+      if (window.innerWidth >= 760) return;
+      if (!entry.isIntersecting && !thankYou.classList.contains('show')){
+        stickyCta.classList.add('show');
+      } else {
+        stickyCta.classList.remove('show');
+      }
+    }, { threshold: 0 });
+    observer.observe(formCard);
+  }
+
+  stickyBtn.addEventListener('click', function(){
+    formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('name').focus({ preventScroll: true });
+  });
+
+})();
+</script>
+
+</body>
+</html>
